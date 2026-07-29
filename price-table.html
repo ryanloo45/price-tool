@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新房价码价格梳理表</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #fff;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header .subtitle {
+    font-size: 14px;
+    opacity: 0.85;
+  }
+
+  /* Input Panel */
+  .input-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-group label .icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #fff;
+  }
+  .input-group label .icon.price { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .input-group label .icon.listing { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .input-group label .icon.breakfast { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+  .input-group input[type="number"],
+  .input-group select {
+    height: 44px;
+    padding: 0 14px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    transition: all 0.25s;
+    min-width: 150px;
+    background: #fafafa;
+  }
+  .input-group input[type="number"]:focus,
+  .input-group select:focus {
+    border-color: #764ba2;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
+  }
+  .input-group select {
+    appearance: none;
+    background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23764ba2' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;
+    padding-right: 34px;
+    cursor: pointer;
+  }
+
+  /* Table */
+  .table-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  .table-scroll {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 960px;
+  }
+
+  /* Table Header */
+  thead th {
+    font-weight: 600;
+    font-size: 13px;
+    padding: 14px 12px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  thead tr:first-child th {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border-bottom: none;
+  }
+  thead tr:first-child th.col-name {
+    text-align: left;
+    min-width: 200px;
+    border-top-left-radius: 0;
+  }
+  thead tr:first-child th.col-info {
+    min-width: 60px;
+  }
+  thead tr.sub-header th {
+    background: #f0eef7;
+    color: #555;
+    border-bottom: 2px solid #e0ddf0;
+    font-size: 13px;
+  }
+  /* Member column colors */
+  thead tr.sub-header th.member-0 { border-top: 3px solid #f5576c; }
+  thead tr.sub-header th.member-1 { border-top: 3px solid #4facfe; }
+  thead tr.sub-header th.member-2 { border-top: 3px solid #43e97b; }
+  thead tr.sub-header th.member-3 { border-top: 3px solid #fa709a; }
+  thead tr.sub-header th.channel-listing-header { border-top: 3px solid #ff7e5f; }
+  thead tr.sub-header th.channel-nonlisting-header { border-top: 3px solid #2bb673; }
+
+  /* Table Body */
+  tbody td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #f5f5f5;
+    text-align: center;
+    color: #444;
+  }
+  tbody td.col-name {
+    text-align: left;
+    font-weight: 600;
+    color: #2d2d44;
+    white-space: nowrap;
+  }
+  tbody td.col-info {
+    font-size: 12px;
+    color: #999;
+  }
+  tbody td.col-price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  tbody td.col-price.member-0 { color: #f5576c; }
+  tbody td.col-price.member-1 { color: #4facfe; }
+  tbody td.col-price.member-2 { color: #43e97b; }
+  tbody td.col-price.member-3 { color: #fa709a; }
+  tbody td.col-price.channel-listing { color: #ff7e5f; }
+  tbody td.col-price.channel-nonlisting { color: #2bb673; }
+  tbody td.col-price.disabled {
+    color: #e0e0e0;
+    font-weight: 400;
+  }
+  tbody tr:hover {
+    background: linear-gradient(90deg, #f8f6ff, #fff);
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Section separator */
+  .section-row td {
+    background: linear-gradient(90deg, #667eea15, #764ba215);
+    font-weight: 700;
+    font-size: 13px;
+    color: #764ba2;
+    padding: 10px 14px !important;
+    border-bottom: 2px solid #e0ddf0 !important;
+    text-align: left;
+    letter-spacing: 0.5px;
+  }
+
+  /* Tag badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-yes { background: #e8f5e9; color: #43a047; }
+  .badge-no { background: #fbe9e7; color: #e57373; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .input-panel { padding: 16px; gap: 14px; }
+    .input-group input[type="number"],
+    .input-group select { min-width: 120px; }
+    .header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>新房价码价格梳理表</h1>
+    <p class="subtitle">填写下方输入项，自动计算各活动价格</p>
+  </div>
+
+  <div class="input-panel">
+    <div class="input-group">
+      <label><span class="icon price">¥</span>门市价（元）</label>
+      <input type="number" id="basePrice" value="100" min="0" step="1">
+    </div>
+    <div class="input-group">
+      <label><span class="icon listing">L</span>是否挂牌</label>
+      <select id="listingStatus">
+        <option value="挂牌">挂牌</option>
+        <option value="未挂牌">未挂牌</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label><span class="icon breakfast">B</span>早餐价格（元）</label>
+      <input type="number" id="breakfastPrice" value="15" min="0" step="1">
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-scroll">
+      <table id="priceTable">
+        <thead>
+          <tr>
+            <th class="col-name" rowspan="2">活动名称</th>
+            <th class="col-info" rowspan="2">库存</th>
+            <th class="col-info" rowspan="2">计划级房态</th>
+            <th class="col-info" rowspan="2">适用渠道</th>
+            <th colspan="4">官网露出价格</th>
+            <th rowspan="2">挂牌渠道露出价格</th>
+            <th rowspan="2">未挂牌渠道露出价格</th>
+          </tr>
+          <tr class="sub-header">
+            <th class="member-0">普卡</th>
+            <th class="member-1">银卡</th>
+            <th class="member-2">金卡</th>
+            <th class="member-3">白金</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== 辅助表数据（预计算的综合折扣率） ==========
+// discounts: 辅助表D-G列（官网露出价格折扣 = 活动折扣 × 会员折扣）
+// listingDiscount: 辅助表H列（挂牌渠道价格折扣 = 活动折扣 × 0.97 × 0.95）
+// nonListingDiscount: 辅助表I列（未挂牌渠道价格折扣 = 活动折扣 × 0.97）
+// breakfast: 早餐份数（0=无早, 1=单早, 2=双早）
+const activities = [
+  // 第一组：基础活动
+  { name: '今日特惠-可取消', stock: '5-99', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.9506, '银卡': 0.9016, '金卡': 0.8624, '白金': 0.833 }, listingDiscount: 0.90307, nonListingDiscount: 0.9506, breakfast: 0 },
+  { name: '今日特惠-学生价&银龄-不可取消', stock: '5-99', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.833, '银卡': 0.833, '金卡': 0.833, '白金': 0.833 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '提前1天-可取消', stock: '房型级', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.9215, '银卡': 0.874, '金卡': 0.836, '白金': 0.8075 }, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 0 },
+  { name: '提前1天-学生价&银龄-不可取消', stock: '房型级', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.8075, '银卡': 0.8075, '金卡': 0.8075, '白金': 0.8075 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '提前3天-可取消', stock: '5-99', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.8924, '银卡': 0.8464, '金卡': 0.8096, '白金': 0.782 }, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 0 },
+  { name: '提前3天-学生价&银龄-不可取消', stock: '5-99', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.782, '银卡': 0.782, '金卡': 0.782, '白金': 0.782 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '提前7天-可取消', stock: '5-99', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.873, '银卡': 0.828, '金卡': 0.792, '白金': 0.765 }, listingDiscount: 0.82935, nonListingDiscount: 0.873, breakfast: 0 },
+  { name: '提前7天-学生价&银龄-不可取消', stock: '5-99', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.765, '银卡': 0.765, '金卡': 0.765, '白金': 0.765 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '连住2天-可取消', stock: '房型级', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.9215, '银卡': 0.874, '金卡': 0.836, '白金': 0.8075 }, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 0 },
+  { name: '连住2天-学生价&银龄-不可取消', stock: '房型级', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.8075, '银卡': 0.8075, '金卡': 0.8075, '白金': 0.8075 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '连住3天-可取消', stock: '5-99', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.8924, '银卡': 0.8464, '金卡': 0.8096, '白金': 0.782 }, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 0 },
+  { name: '连住3天-学生价&银龄-不可取消', stock: '5-99', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.782, '银卡': 0.782, '金卡': 0.782, '白金': 0.782 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+  { name: '今夜特惠-不可取消', stock: '0-99', plan: '是', channel: '直销个人+分销',
+    discounts: { '普卡': 0.9312, '银卡': 0.8832, '金卡': 0.8448, '白金': 0.816 }, listingDiscount: 0.88464, nonListingDiscount: 0.9312, breakfast: 0 },
+  { name: '今夜特惠-学生价&银龄-不可取消', stock: '0-99', plan: '否', channel: '直销个人',
+    discounts: { '普卡': 0.816, '银卡': 0.816, '金卡': 0.816, '白金': 0.816 }, listingDiscount: null, nonListingDiscount: null, breakfast: 0 },
+
+  // 第二组：面纱活动（仅渠道有价格，官网无价格）
+  { name: '新客（面纱）', stock: '房型级', plan: '否', channel: '分销',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 0 },
+  { name: '出行特惠（面纱）', stock: '房型级', plan: '否', channel: '分销',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 0 },
+
+  // 第三组：含早活动（仅渠道有价格，含早餐费）
+  { name: '当日-单早（仅当日）', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.90307, nonListingDiscount: 0.9506, breakfast: 1 },
+  { name: '当日-双早（仅当日）', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.90307, nonListingDiscount: 0.9506, breakfast: 2 },
+  { name: '提前1天订-单早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 1 },
+  { name: '提前1天订-双早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 2 },
+  { name: '提前3天订-单早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 1 },
+  { name: '提前3天订-双早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 2 },
+  { name: '提前7天订-单早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.82935, nonListingDiscount: 0.873, breakfast: 1 },
+  { name: '提前7天订-双早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.82935, nonListingDiscount: 0.873, breakfast: 2 },
+  { name: '连住2天-单早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 1 },
+  { name: '连住2天-双早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.875425, nonListingDiscount: 0.9215, breakfast: 2 },
+  { name: '连住3天-单早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 1 },
+  { name: '连住3天-双早', stock: '0-99', plan: '是', channel: '仅分销，直销搭售',
+    discounts: null, listingDiscount: 0.84778, nonListingDiscount: 0.8924, breakfast: 2 },
+];
+
+// 分组标记
+const sectionLabels = [
+  { afterIndex: 14, label: '面纱活动（仅渠道价格）' },
+  { afterIndex: 16, label: '含早活动（仅分销，直销搭售）' }
+];
+
+function calculate() {
+  const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
+  const isListed = document.getElementById('listingStatus').value === '挂牌';
+  const breakfastPrice = parseFloat(document.getElementById('breakfastPrice').value) || 0;
+  const listingFactor = isListed ? 0.95 : 1;
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  const memberKeys = ['普卡', '银卡', '金卡', '白金'];
+
+  activities.forEach((act, idx) => {
+    // 插入分组标题行
+    for (const sec of sectionLabels) {
+      if (idx === sec.afterIndex) {
+        const tr = document.createElement('tr');
+        tr.className = 'section-row';
+        tr.innerHTML = `<td colspan="10">${sec.label}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    const tr = document.createElement('tr');
+
+    // 活动名称及信息
+    const planBadge = act.plan === '是'
+      ? '<span class="badge badge-yes">是</span>'
+      : '<span class="badge badge-no">否</span>';
+
+    tr.innerHTML = `
+      <td class="col-name">${act.name}</td>
+      <td class="col-info">${act.stock}</td>
+      <td class="col-info">${planBadge}</td>
+      <td class="col-info">${act.channel}</td>
+    `;
+
+    // 计算官网露出价格（普卡、银卡、金卡、白金）
+    // 公式: 辅助表D-G列折扣 × 门市价 × 挂牌系数
+    memberKeys.forEach((key, mi) => {
+      const td = document.createElement('td');
+      td.className = `col-price member-${mi}`;
+
+      if (act.discounts === null) {
+        td.textContent = '-';
+        td.classList.add('disabled');
+      } else {
+        const price = act.discounts[key] * basePrice * listingFactor;
+        td.textContent = formatPrice(price);
+      }
+      tr.appendChild(td);
+    });
+
+    // 挂牌渠道露出价格（I列）
+    // 公式: 辅助表H列折扣 × 门市价 + 早餐费 × 早餐份数
+    // 未挂牌时，此列全部输出 "-"
+    const tdListing = document.createElement('td');
+    tdListing.className = 'col-price channel-listing';
+    if (!isListed || act.listingDiscount === null) {
+      tdListing.textContent = '-';
+      tdListing.classList.add('disabled');
+    } else {
+      let price = act.listingDiscount * basePrice;
+      if (act.breakfast > 0) {
+        price += breakfastPrice * act.breakfast;
+      }
+      tdListing.textContent = formatPrice(price);
+    }
+    tr.appendChild(tdListing);
+
+    // 未挂牌渠道露出价格（J列）
+    // 公式: 辅助表I列折扣 × 门市价 + 早餐费 × 早餐份数
+    const tdNonListing = document.createElement('td');
+    tdNonListing.className = 'col-price channel-nonlisting';
+    if (act.nonListingDiscount === null) {
+      tdNonListing.textContent = '-';
+      tdNonListing.classList.add('disabled');
+    } else {
+      let price = act.nonListingDiscount * basePrice;
+      if (act.breakfast > 0) {
+        price += breakfastPrice * act.breakfast;
+      }
+      tdNonListing.textContent = formatPrice(price);
+    }
+    tr.appendChild(tdNonListing);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function formatPrice(val) {
+  if (val === 0) return '0';
+  return parseFloat(val.toFixed(2)).toString();
+}
+
+// 监听输入变化
+document.getElementById('basePrice').addEventListener('input', calculate);
+document.getElementById('listingStatus').addEventListener('change', calculate);
+document.getElementById('breakfastPrice').addEventListener('input', calculate);
+
+// 初始计算
+calculate();
+</script>
+</body>
+</html>
